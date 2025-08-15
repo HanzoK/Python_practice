@@ -26,6 +26,6 @@ print(programming_dictionary)
 
 # Loop through a dictionary
 print("\n")
-for key in programming_dictionary
+for key in programming_dictionary:
     print(key)
     print(programming_dictionary[key])
