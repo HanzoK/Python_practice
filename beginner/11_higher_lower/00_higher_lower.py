@@ -39,6 +39,8 @@ def start_game():
     game_runs = True
     pA = random.choice(data)
     pB = random.choice(data)
+    if pA == pB:
+        pB = random.choice(data)
     while game_runs == True:
         print(f"Compare A: {pA["name"]}, a {pA["description"]}, from {pA["country"]}")
         print(vs, end="")
