@@ -11,9 +11,7 @@ class Player(Turtle):
         self.color("white")
         self.shapesize(stretch_wid=5, stretch_len=1)
         self.penup()
-        self.goto(350, 0)
-        # self.speed("fastest")
-        self.showturtle()
+        self.speed("fastest")
 
     def up(self):
         self.sety(self.ycor() + 20)
