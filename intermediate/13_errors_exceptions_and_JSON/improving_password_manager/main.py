@@ -58,6 +58,21 @@ def save():
             website_entry.delete(0, END)
             email_username_entry.delete(0, END)
             password_entry.delete(0, END)
+
+# ---------------------------- FIND PASSWORD ------------------------------- #
+def find_password():
+    website = website_entry.get()
+    try:
+        with open("data.json") as file:
+            new_json_data = json.load(file)
+            email = new_json_data[website]["email"]
+            password = new_json_data[website]["password"]
+    except FileNotFoundError:
+        messagebox.showerror(title="Error", message="No Data File Found")
+    except KeyError as error_msg:
+        messagebox.showerror(title="Error", message=f"No details for {error_msg} exists")
+    else:
+        messagebox.showinfo(title=f"{website}", message=f"Email: {email}\nPassword: {password}")
 # ---------------------------- UI SETUP ------------------------------- #
 
 window = Tk()
@@ -71,9 +86,12 @@ canvas.grid(column=1, row=0)
 website_label = Label(text="Website:")
 website_label.grid(column=0, row=1)
 
-website_entry = Entry(width=47)
+website_entry = Entry(width=33)
 website_entry.focus()
-website_entry.grid(column=1, row=1, columnspan=2)
+website_entry.grid(column=1, row=1)
+
+search_button = Button(text="Search", width=11, command=find_password)
+search_button.grid(column=2, row=1)
 
 email_username_label = Label(text="Email/Username:")
 email_username_label.grid(column=0, row=2)
