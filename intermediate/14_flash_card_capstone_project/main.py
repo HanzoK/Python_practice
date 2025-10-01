@@ -1,35 +1,32 @@
 from tkinter import *
 import pandas
-import time
-import math
+import random
 
 BACKGROUND_COLOR = "#B1DDC6"
 
 df = pandas.read_csv("./data/french_words.csv")
-not_solved_words = []
-
-def flip_card(translation):
-    canvas.itemconfig(front_card_img, image=card_img_back)
-    canvas.itemconfig(card_title, text="English", fill="white")
-    canvas.itemconfig(card_word, text=translation, fill="white")
+to_learn = df.to_dict(orient="records")
+current_card = {}
 
 def generate_word():
     global flip_timer
     window.after_cancel(flip_timer)
-    row = df.sample().iloc[0]
-    new_french_word = row["French"]
-    new_translation = row["English"]
-    not_solved_words.append(new_french_word)
+    current_card = random.choice(to_learn)
     canvas.itemconfig(front_card_img, image=card_img_front)
-    canvas.itemconfig(card_word, text=new_french_word, fill="black")
+    canvas.itemconfig(card_word, text=current_card["French"], fill="black")
     canvas.itemconfig(card_title, text="French", fill="black")
-    flip_timer = window.after(3000, flip_card, new_translation)
+    flip_timer = window.after(3000, flip_card)
+
+def flip_card():
+    canvas.itemconfig(front_card_img, image=card_img_back)
+    canvas.itemconfig(card_title, text="English", fill="white")
+    canvas.itemconfig(card_word, text=current_card["English"], fill="white")
 
 window = Tk()
 window.title("Flashy")
 window.config(padx=50, pady=50, bg=BACKGROUND_COLOR)
 
-flip_timer = window.after(3000, flip_card, new_translation)
+flip_timer = window.after(3000, flip_card)
 
 canvas = Canvas(width=800, height=526, bg=BACKGROUND_COLOR, highlightthickness=0)
 
