@@ -22,21 +22,20 @@ with open("quotes.txt") as quote_file:
 
 now = dt.datetime.now()
 current_weekday = now.weekday()
+if current_weekday == 0:
+    quote_to_be_sent = random.choice(quote_list)
+    my_email = os.getenv("SMTP_EMAIL")
+    password = os.getenv("SMTP_PASSWORD")
+    dest_email = os.getenv("SMTP_DEST_EMAIL")
+    # connection = smtplib.SMTP("smtp.gmail.com")
 
-quote_to_be_sent = random.choice(quote_list)
+    with smtplib.SMTP("smtp.gmail.com") as connection:
+        connection.starttls() #starting Transport Layer Security (makes connection secure)
+        connection.login(user=my_email, password=password)
+        connection.sendmail(
+            from_addr=my_email, 
+            to_addrs=dest_email, 
+            msg=f"Subject:Motivational Quote\n\n{quote_to_be_sent}"
+        )
 
-my_email = os.getenv("SMTP_EMAIL")
-password = os.getenv("SMTP_PASSWORD")
-dest_email = os.getenv("SMTP_DEST_EMAIL")
-# connection = smtplib.SMTP("smtp.gmail.com")
-
-with smtplib.SMTP("smtp.gmail.com") as connection:
-    connection.starttls() #starting Transport Layer Security (makes connection secure)
-    connection.login(user=my_email, password=password)
-    connection.sendmail(
-        from_addr=my_email, 
-        to_addrs=dest_email, 
-        msg=f"Subject:Motivational Quote\n\n{quote_to_be_sent}"
-    )
-
-# connection.close()
+    # connection.close()
