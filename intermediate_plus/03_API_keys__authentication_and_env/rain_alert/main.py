@@ -16,6 +16,20 @@ parameters = {
     "appid": os.getenv("API_KEY"),
 }
 
+required_vars = {
+    "TWILIO_ACCOUNT_SID": account_sid,
+    "TWILIO_AUTH_TOKEN": auth_token,
+    "MY_PHONE_NUMBER": my_number,
+    "TWILIO_NUMBER": twilio_number,
+    "LATITUDE": parameters["lat"],
+    "LONGITUDE": parameters["lon"],
+    "API_KEY": parameters["appid"],
+}
+
+missing = [name for name, value in required_vars.items() if not value]
+if missing:
+    raise ValueError(f"Missing environment variables: {', '.join(missing)}. Please check your .env file.")
+
 response = requests.get(url="https://api.openweathermap.org/data/2.5/forecast", params=parameters)
 response.raise_for_status()
 data = response.json()
