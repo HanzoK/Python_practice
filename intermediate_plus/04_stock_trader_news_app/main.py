@@ -6,7 +6,7 @@ from twilio.rest import Client
 load_dotenv()
 
 STOCK = "TSLA"
-THRESHOLD_CHANGE = 5.0 # Minimum % change required to trigger news message
+THRESHOLD_CHANGE = 1.0 # Minimum % change required to trigger news message
 ALPHA_KEY = os.getenv("STOCK_API_KEY")
 NEWS_KEY = os.getenv("NEWS_API_KEY")
 ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
@@ -34,8 +34,15 @@ stock_response = requests.get(stock_url)
 stock_response.raise_for_status()
 stock_data = stock_response.json()
 
+if "Note" in stock_data:
+    raise RuntimeError(f"AlphaVantage API Notice: {stock_data['Note']}")
+if "Information" in stock_data:
+    raise RuntimeError(f"AlphaVantage API Info: {stock_data['Information']}")
+if "Error Message" in stock_data:
+    raise RuntimeError(f"AlphaVantage API Error: {stock_data['Error Message']}")
+
 time_series = stock_data["Time Series (Daily)"]
-historical_dates = sorted(time_series.keys(), reverse=True)
+historical_dates = sorted(stock_data.keys(), reverse=True)
 latest_date = historical_dates[0]
 previous_date = historical_dates[1]
 
@@ -53,18 +60,17 @@ if moved_enough:
     news_data = news_response.json()
     articles = news_data["articles"]
     latest_news_pieces = articles[:3]
-    latest_three = [(article["title"], article["description"]) for article in latest_news_pieces]
 
-    premade_message = f"{STOCK}: {direction}{price_change}"
-    for item in latest_three:
-        premade_message += f"\n\nHeadline: {item[0]}\nBrief:{item[1]}"
+    header = f"{STOCK}: {direction}{price_change}"
+    formatted_articles = [f"{header}\nHeadline: {article['title']}\n{article['description']}" for article in latest_news_pieces]
 
     client = Client(ACCOUNT_SID, AUTH_TOKEN)
-    message = client.messages.create(
-    body=premade_message,
-    from_=TWILIO_NUMBER,
-    to=MY_NUMBER,
-    )
-    print(message.status)
+    for msg_to_be_sent in formatted_articles:
+        message = client.messages.create(
+        body=msg_to_be_sent,
+        from_=TWILIO_NUMBER,
+        to=MY_NUMBER,
+        )
+        print(message.status)
 else:
     print(f"No significant changes over selected threshold of {THRESHOLD_CHANGE}%.")
